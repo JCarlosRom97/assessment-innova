@@ -53,3 +53,6 @@ target 'assessment' do
     )
   end
 end
+
+
+pod 'CocoaAsyncSocket', :modular_headers => true, :configurations => ['Debug']
