@@ -1,11 +1,11 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { Dimensions, FlatList, TouchableHighlight } from "react-native";
+import { Dimensions, FlatList, TouchableHighlight, ListRenderItemInfo } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { ParamList, RootStackParamList } from "../../Types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Star from './../../Images/star.png'
-import isLandscape from "../../Hooks/isLandScape";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const AlbumDetail = () => {
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -16,30 +16,6 @@ const AlbumDetail = () => {
     const title = params.title; 
     const ImageWidth = Dimensions.get('window').width / 3 ;
 
-    const IMAGE_SIZE = isLandscape() ? 270 : ImageWidth;
-
-    const getAllPhotos = async() => {
-        try {
-            const data = await fetch(`https://jsonplaceholder.typicode.com/photos`);
-            const AllAlbumPhotosData = await data.json();
-            setPhotoAlbum(AllAlbumPhotosData)
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-
-    useEffect(()=>{
-        if(isAlbumPhotos){
-            getAlbumPhotos().catch((error) => console.error(error))
-            setHeader(title)
-        }else{
-            getAllPhotos()
-            setHeader("All")
-         
-        }
-    },[isAlbumPhotos])
-
 
     const setHeader = (title:string) =>{
         navigation.setOptions({title: title,  headerRight: () => (
@@ -49,7 +25,12 @@ const AlbumDetail = () => {
         )})
     }
 
-  
+    const getAllPhotos = async() => {
+        const data = await fetch(`https://jsonplaceholder.typicode.com/photos`);
+        const AllAlbumPhotosData = await data.json();
+        setPhotoAlbum(AllAlbumPhotosData)
+    }
+
 
     const getAlbumPhotos = async ()=>{
         const data = await fetch(`https://jsonplaceholder.typicode.com/photos?albumId=${albumId}`);
@@ -57,12 +38,33 @@ const AlbumDetail = () => {
         setPhotoAlbum(AlbumPhotosData)
     }
 
+    useEffect(()=>{
+        if(isAlbumPhotos){
+            setPhotoAlbum([])
+            getAlbumPhotos().catch((error) => console.error(error))
+            setHeader(title)
+        }else{
+            setPhotoAlbum([])
+            getAllPhotos().catch((error)=> console.error(error))
+            setHeader("All")
+         
+        }
+    },[isAlbumPhotos])
+
+  
+
+    const ImageRender = (url:ListRenderItemInfo<{id:number, url:string}>) => <Image source={{uri: url.item.url }} style={{width:ImageWidth, height: ImageWidth}} />
+
+    if(photosAlbum.length == 0){
+        return <Spinner visible={true} textContent={'Loading...'}/>
+    }
+
     return(
         <FlatList 
-            keyExtractor={(item) => 'image-'+item.id}
+            keyExtractor={(item:{id: number}) => 'image-'+item.id}
             numColumns={3}  
             data={photosAlbum} 
-            renderItem={({ item }:{item:{id: number, url:string}}) => (<Image source={{uri: item.url}} style={{width:IMAGE_SIZE, height: IMAGE_SIZE}} />)} 
+            renderItem={ImageRender} 
         />
     )
 }

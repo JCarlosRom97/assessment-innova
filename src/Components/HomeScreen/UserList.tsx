@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { TextStyled, UserListContainer, AlbumListContainer, RowStyled } from "../../Styles";
 import { UserInterface, RootStackParamList } from "../../Types";
-import { TouchableOpacity, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import AlbumList from "../AlbumList.tsx";
+import Spinner from "react-native-loading-spinner-overlay";
+
 
 const UserList = ({user}:UserInterface) => {
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -29,22 +32,16 @@ const UserList = ({user}:UserInterface) => {
             <UserListContainer>
                 <TextStyled size={16}>{user.name}</TextStyled>
             </UserListContainer>
-            {album.map((element:{id:number, title:string})=>(
-                <AlbumListContainer key={element.id}>
-                    <RowStyled rows={11}>
-                        <TouchableOpacity onPress={() => navigation.navigate("AlbumDetail", {id: element.id, title: element.title})}>
-                            <TextStyled size={14}>{element.title}</TextStyled>
-                        </TouchableOpacity>
-                    </RowStyled>
-                    <RowStyled rows={1} >
-                        <TouchableOpacity  
-                            onPress={() => deleteAlbum(element.id)} 
-                        >
-                            <TextStyled center={true} size={18} isBold={true}>-</TextStyled>
-                        </TouchableOpacity>
-                    </RowStyled>
-                </AlbumListContainer>
-            ))}
+            <FlatList
+                data={album}
+                keyExtractor={(item:{id: number, title:string}) => 'album-'+item.id}
+                renderItem={({item})=> 
+                <AlbumList 
+                    album={item} 
+                    onDeleteAlbum={(id:number) => deleteAlbum(id)} 
+                    onNavigate ={ (id, title) => navigation.navigate("AlbumDetail", {id, title})}
+                />}    
+            />
         </View>
     )
 }

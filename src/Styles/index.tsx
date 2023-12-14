@@ -8,7 +8,6 @@ export const UserListContainer = styled.View`
 `
 
 export const AlbumListContainer = styled.View`
-    flex:1;
     display: flex;
     flex-direction: row;
     width:${isLandscape()? "700px":"300px"} ;

@@ -20,7 +20,7 @@ const HomeScreen = () => {
         getUsers().catch((error) => console.error(error))
 
     }, [])
-
+    // Spinner when the data is not retrieved yet 
     if(users.length == 0){
         return <Spinner visible={true} textContent={'Loading...'}/>
     }
