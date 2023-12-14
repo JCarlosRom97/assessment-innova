@@ -1,6 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { Dimensions, TouchableHighlight } from "react-native";
-import { FlatGrid } from 'react-native-super-grid';
+import { Dimensions, FlatList, TouchableHighlight } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { ParamList, RootStackParamList } from "../../Types";
@@ -15,9 +14,9 @@ const AlbumDetail = () => {
     const {params} = useRoute<RouteProp<ParamList,'AlbumDetail'>>();
     const albumId = params.id;
     const title = params.title; 
-    const ImageWidth = Dimensions.get('window').width / 4 ;
+    const ImageWidth = Dimensions.get('window').width / 3 ;
 
-    const IMAGE_SIZE = isLandscape() ? 270 : 140;
+    const IMAGE_SIZE = isLandscape() ? 270 : ImageWidth;
 
     const getAllPhotos = async() => {
         try {
@@ -59,11 +58,11 @@ const AlbumDetail = () => {
     }
 
     return(
-        <FlatGrid
-            itemDimension={ImageWidth}
-            spacing={0}
-            data={photosAlbum}
-            renderItem={({ item }:{item:{url:string}}) => (<Image source={{uri: item.url}} style={{width:IMAGE_SIZE, height: IMAGE_SIZE}} />)}
+        <FlatList 
+            keyExtractor={(item) => 'image-'+item.id}
+            numColumns={3}  
+            data={photosAlbum} 
+            renderItem={({ item }:{item:{id: number, url:string}}) => (<Image source={{uri: item.url}} style={{width:IMAGE_SIZE, height: IMAGE_SIZE}} />)} 
         />
     )
 }
